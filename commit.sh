@@ -72,39 +72,42 @@ function commit {
     editors=("this" "vscode" "vi" "vim" "nano" "gedit")
     select_option "${editors[@]}"
     editor=${editors[$?]}
-    echo "${type}(${scope}): ${subject}" > ".tmpCommitMsg-${subject}"
-    echo "" >> ".tmpCommitMsg-${subject}"
+
+    tmpFileName=".tmpCommitMsg-$RANDOM"
+
+    echo "${type}(${scope}): ${subject}" > ${tmpFileName}
+    echo "" >> ${tmpFileName}
     case $editor in
     "vscode") 
-        code -w ".tmpCommitMsg-${subject}"
+        code -w ${tmpFileName}
         ;;
     "vi") 
-        vi ".tmpCommitMsg-${subject}"
+        vi ${tmpFileName}
         ;;
     "vim") 
-        vim + ".tmpCommitMsg-${subject}"
+        vim + ${tmpFileName}
         ;;
     "nano") 
-        nano ".tmpCommitMsg-${subject}"
+        nano ${tmpFileName}
         ;;
     "gedit") 
-        gedit ".tmpCommitMsg-${subject}"
+        gedit ${tmpFileName}
         ;;
     *)
         echo "write body (^D (ctrl + D) for submit) >"
         body=$(</dev/stdin)
         for line in $body
         do
-            echo $line >> ".tmpCommitMsg-${subject}"
+            echo $line >> ${tmpFileName}
         done
         ;;
     esac
-    git commit -F ".tmpCommitMsg-${subject}"
-    rm ".tmpCommitMsg-${subject}"
+    git commit -F ${tmpFileName}
+    rm ${tmpFileName}
     echo "[😏] done!"
 }
 
-IFS='\n'
+IFS=$'\n'
 
 if [ $# == 1 ]
 then
