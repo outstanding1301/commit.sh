@@ -61,21 +61,55 @@ function select_option {
 
 function commit {
     subject=$1
-    echo "<type>(<scope>): ${subject}"
-    echo "type : "
+    echo "[✏] type : "
     types=("feat" "fix" "docs" "style" "refactor" "test" "chore")
 
     select_option "${types[@]}"
-    choice=${types[$?]}
-    echo "${choice}(<scope>): ${subject}"
-    read -p "scope > " scope
-    echo "${choice}(${scope}): ${subject}"
+    type=${types[$?]}
+    read -p "[✏] scope > " scope
+    echo "${type}(${scope}): ${subject}"
+    echo "[✏] select editor for write body : "
+    editors=("this" "vscode" "vi" "vim" "nano" "gedit")
+    select_option "${editors[@]}"
+    editor=${editors[$?]}
+    echo "${type}(${scope}): ${subject}" > ".tmpCommitMsg-${subject}"
+    echo "" >> ".tmpCommitMsg-${subject}"
+    case $editor in
+    "vscode") 
+        code -w ".tmpCommitMsg-${subject}"
+        ;;
+    "vi") 
+        vi ".tmpCommitMsg-${subject}"
+        ;;
+    "vim") 
+        vim + ".tmpCommitMsg-${subject}"
+        ;;
+    "nano") 
+        nano ".tmpCommitMsg-${subject}"
+        ;;
+    "gedit") 
+        gedit ".tmpCommitMsg-${subject}"
+        ;;
+    *)
+        echo "write body (^D (ctrl + D) for submit) >"
+        body=$(</dev/stdin)
+        for line in $body
+        do
+            echo $line >> ".tmpCommitMsg-${subject}"
+        done
+        ;;
+    esac
+    git commit -F ".tmpCommitMsg-${subject}"
+    rm ".tmpCommitMsg-${subject}"
+    echo "[😏] done!"
 }
+
+IFS='\n'
 
 if [ $# == 1 ]
 then
     commit $1
 else
-    read -p "title > " title
-    commit $title
+    read -p "[✏] subject > " subject
+    commit $subject
 fi
