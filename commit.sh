@@ -62,13 +62,13 @@ function select_option {
 function commit {
     subject=$1
     echo "<type>(<scope>): ${subject}"
-    echo "select type : "
+    echo "type : "
     types=("feat" "fix" "docs" "style" "refactor" "test" "chore")
 
     select_option "${types[@]}"
     choice=${types[$?]}
     echo "${choice}(<scope>): ${subject}"
-    read -p "input scope > " scope
+    read -p "scope > " scope
     echo "${choice}(${scope}): ${subject}"
 }
 
@@ -76,5 +76,6 @@ if [ $# == 1 ]
 then
     commit $1
 else
-    echo "no subject"
+    read -p "title > " title
+    commit $title
 fi
